@@ -19,9 +19,15 @@ $(document).ready(function(){
       $(this).removeClass('hover');
     })
     .live('click', function(e){
-      var url = $(this).parents('div.gal-item').data('url');
-      CKEDITOR.tools.callFunction(CKEditorFuncNum, url);
-      window.close();
+	  var url = $(this).parents('div.gal-item').data('url');
+      if($.QueryString["CKEditor"]){
+	      CKEDITOR.tools.callFunction(CKEditorFuncNum, url);
+	      window.close();
+      }else if($.QueryString["Input"])
+      {
+      	parent.$('input[name='+$.QueryString["Input"]+']').val(url).trigger('change');
+      	parent.$('.image-browser-dialog').dialog('close');
+      }
     });
   
   $("div.gal-item a.gal-del").live('ajax:complete', function(xhr, status){
