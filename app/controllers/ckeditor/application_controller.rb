@@ -9,7 +9,7 @@ class Ckeditor::ApplicationController < ::ApplicationController
     
     def set_locale
       if !params[:langCode].blank? && I18n.available_locales.include?(params[:langCode].to_sym)
-        I18n.locale = params[:langCode]
+        #I18n.locale = params[:langCode]
       end
     end
     
