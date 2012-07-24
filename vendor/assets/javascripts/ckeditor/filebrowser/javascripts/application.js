@@ -26,6 +26,9 @@ $(document).ready(function(){
       }else if($.QueryString["Input"])
       {
       	parent.$('input[name='+$.QueryString["Input"]+']').val(url).trigger('change');
+		if($.QueryString["InputForId"]){
+			parent.$('input[name='+$.QueryString["InputForId"]+']').val($(this).parents('div.gal-item').data('id')).trigger('change');
+		}
       	parent.$('.image-browser-dialog').dialog('close');
       }
     });
