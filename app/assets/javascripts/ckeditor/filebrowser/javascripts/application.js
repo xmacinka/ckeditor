@@ -102,7 +102,6 @@ qq.extend(qq.FileUploaderInput.prototype, {
     _find: function(parent, type){                                
         var element = qq.getByClass(parent, this._options.classes[type])[0];        
         if (!element){
-          alert(type);
             throw new Error('element not found ' + type);
         }
         
@@ -115,6 +114,7 @@ qq.extend(qq.FileUploaderInput.prototype, {
         var dz = new qq.UploadDropZone({
             element: dropArea,
             onEnter: function(e){
+			
                 qq.addClass(dropArea, self._classes.dropActive);
                 e.stopPropagation();
             },
@@ -134,6 +134,7 @@ qq.extend(qq.FileUploaderInput.prototype, {
         dropArea.style.display = 'none';
 
         qq.attach(document, 'dragenter', function(e){     
+		
             if (!dz._isValidFileDrag(e)) return; 
             
             dropArea.style.display = 'block';            
