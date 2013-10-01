@@ -69,7 +69,6 @@ qq.FileUploaderInput = function(o){
             spinner: 'fileupload-spinner',
             size: 'fileupload-size',
             cancel: 'fileupload-cancel',
-
             // added to list item when upload completes
             // used in css to hide progress spinner
             success: 'fileupload-success',
@@ -151,7 +150,8 @@ qq.extend(qq.FileUploaderInput.prototype, {
     },
     _onSubmit: function(id, fileName){
         qq.FileUploaderBasic.prototype._onSubmit.apply(this, arguments);
-        this._addToList(id, fileName);  
+        this._addToList(id, fileName);
+        $('.alert').hide();
     },
     _onProgress: function(id, fileName, loaded, total){
         qq.FileUploaderBasic.prototype._onProgress.apply(this, arguments);
