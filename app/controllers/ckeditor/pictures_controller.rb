@@ -2,7 +2,8 @@ class Ckeditor::PicturesController < Ckeditor::ApplicationController
 
   def index
     @pictures = Ckeditor.picture_model.find_all(ckeditor_pictures_scope)
-    @pictures = Kaminari.paginate_array(@pictures).page(params[:page]).per(20)
+    #@pictures = Kaminari.paginate_array(@pictures).page(params[:page]).per(20)
+	@pictures = @pictures.paginate(:page => params[:page], :per_page => 80) # 98 # 80
     respond_with(@pictures)
   end
 

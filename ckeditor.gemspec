@@ -20,5 +20,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency("mime-types")
   s.add_dependency("orm_adapter")
-  s.add_dependency("kaminari")
+  s.add_dependency("will_paginate")
+  s.add_dependency("bootstrap-will_paginate","0.0.9")
 end

@@ -9,7 +9,7 @@
     <%= render :partial => 'ckeditor/shared/asset', :collection => @pictures %>
   </div>
 
-  <%= paginate @pictures %>
+  <%= will_paginate @pictures %>
 </div>
 
 <script type="text/javascript">
