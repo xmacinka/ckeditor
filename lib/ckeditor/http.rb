@@ -45,7 +45,8 @@ module Ckeditor
         @original_filename  = filename
         @request = request
         
-        super Digest::SHA1.hexdigest(filename), tmpdir, :binmode => true
+        super Digest::SHA1.hexdigest(filename), tmpdir
+        binmode
         fetch
       end
      
