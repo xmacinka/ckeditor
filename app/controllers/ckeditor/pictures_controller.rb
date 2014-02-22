@@ -1,10 +1,12 @@
 class Ckeditor::PicturesController < Ckeditor::ApplicationController
 
   def index
+    # @pictures = Ckeditor.picture_adapter.find_all(ckeditor_pictures_scope)
+    # @pictures = Ckeditor::Paginatable.new(@pictures).page(params[:page])
     @pictures = Ckeditor.picture_adapter.find_all(ckeditor_pictures_scope)
-    @pictures = Ckeditor::Paginatable.new(@pictures).page(params[:page])
+    @pictures = @pictures.paginate(:page => params[:page], :per_page => 80) # 98 # 80
 
-    respond_with(@pictures, :layout => @pictures.first_page?)
+    respond_with(@pictures)
   end
 
   def create

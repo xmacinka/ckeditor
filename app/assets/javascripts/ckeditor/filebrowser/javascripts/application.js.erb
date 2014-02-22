@@ -20,23 +20,32 @@ $(document).ready(function(){
     })
     .live('click', function(e){
       var url = $(this).parents('div.gal-item').data('url');
-      CKEDITOR.tools.callFunction(CKEditorFuncNum, url);
-      window.close();
+      if($.QueryString["CKEditor"]){
+        CKEDITOR.tools.callFunction(CKEditorFuncNum, url);
+        window.close();
+      }else if($.QueryString["Input"])
+      {
+        parent.$('input[name='+$.QueryString["Input"]+']').val(url).trigger('change');
+        if($.QueryString["InputForId"]){
+          parent.$('input[name='+$.QueryString["InputForId"]+']').val($(this).parents('div.gal-item').data('id')).trigger('change');
+        }
+        parent.$('.image-browser-dialog').dialog('close');
+      }
     });
   
   $("div.gal-item a.gal-del").live('ajax:complete', function(xhr, status){
     $(this).parents('div.gal-item').remove();
   });
 
-  var endlessScroll = $.endlessScroll({
-    container: ".fileupload-list",
-    entity: ".gal-item",
-    scrollPadding: 100
-  });
+  // var endlessScroll = $.endlessScroll({
+  //   container: ".fileupload-list",
+  //   entity: ".gal-item",
+  //   scrollPadding: 100
+  // });
 
-  // Don't listen events first second
-  endlessScroll.scrollModule.unbind();
-  window.setTimeout(function() { endlessScroll.scrollModule.bind();}, 1000);
+  // // Don't listen events first second
+  // endlessScroll.scrollModule.unbind();
+  // window.setTimeout(function() { endlessScroll.scrollModule.bind();}, 1000);
 });
 
 // Collection of all instances on page
@@ -150,7 +159,8 @@ qq.extend(qq.FileUploaderInput.prototype, {
     },
     _onSubmit: function(id, fileName){
         qq.FileUploaderBasic.prototype._onSubmit.apply(this, arguments);
-        this._addToList(id, fileName);  
+        this._addToList(id, fileName);
+        $('.alert').hide();
     },
     _onProgress: function(id, fileName, loaded, total){
         qq.FileUploaderBasic.prototype._onProgress.apply(this, arguments);

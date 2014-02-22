@@ -16,14 +16,22 @@
     <% end -%>
   <% end -%>
   
+  <% if params[:CKEditor] %>
   <script type="text/javascript">
     var CKEditorFuncNum = $.QueryString["CKEditorFuncNum"];
     var CKEditorName = $.QueryString["CKEditor"];
     var CKEDITOR = window.opener.CKEDITOR;
     var EDITOR = CKEDITOR.instances[CKEditorName];
   </script>
+  <% else %>
+  <script type="text/javascript">
+    var EDITOR = window.parent.EDITOR;
+  </script>
+  <% end %>
+
 </head>
 <body>
+  <div class="alert" style="display: none;"></div>
   <%= yield %>
   <%= render :partial => 'ckeditor/shared/asset_tmpl' %>
 </body>
