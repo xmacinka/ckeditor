@@ -1,3 +1,10 @@
+<form action="<%= url_for params.except(:search, :controller, :action) %>" id="ckeditor-search">
+<% params.except(:search, :controller, :action).each do |key,param| %>
+  <input type="hidden" name="<%= key %>" value="<%= param %>">
+<% end %>
+<input class="search-by-name" type="text" name="search" value="<%= params[:search] %>">
+<input type="submit" value="Search by filename" class="btn">
+</form>
 <div id="fileupload" class="gal-holder">
   <div class="gal-item">
     <div class="fileupload-button gal-upload-holder">

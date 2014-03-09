@@ -1,7 +1,17 @@
 class Ckeditor::AttachmentFilesController < Ckeditor::ApplicationController
 
   def index
-    @attachments = Ckeditor.attachment_file_model.find_all(ckeditor_attachment_files_scope)
+    # @attachments = Ckeditor.attachment_file_model.find_all(ckeditor_attachment_files_scope)
+
+    my_scope = ckeditor_attachment_files_scope
+    my_scope.delete :order
+    @attachments = Ckeditor::AttachmentFile.where(my_scope)
+
+    if !params[:search].blank?
+      attachments = Ckeditor::AttachmentFile.arel_table
+      @attachments = @attachments.where(attachments[:data_file_name].matches("%#{params[:search]}%"))
+    end
+
     respond_with(@attachments)
   end
   
