@@ -23,12 +23,16 @@ $(document).ready(function(){
       if($.QueryString["CKEditor"]){
 	      CKEDITOR.tools.callFunction(CKEditorFuncNum, url);
 	      window.close();
-      }else if($.QueryString["Input"])
+      }else if($.QueryString["Input"] || $.QueryString["InputId"])
       {
-      	parent.$('input[name='+$.QueryString["Input"]+']').val(url).trigger('change');
-		if($.QueryString["InputForId"]){
-			parent.$('input[name='+$.QueryString["InputForId"]+']').val($(this).parents('div.gal-item').data('id')).trigger('change');
-		}
+        if($.QueryString["Input"])
+      	  parent.$('input[name='+$.QueryString["Input"]+']').val(url).trigger('change');
+        if($.QueryString["InputId"])
+          parent.$('input[id='+$.QueryString["InputId"]+']').val(url).trigger('change');
+
+    		if($.QueryString["InputForId"]){
+    			parent.$('input[name='+$.QueryString["InputForId"]+']').val($(this).parents('div.gal-item').data('id')).trigger('change');
+    		}
       	parent.$('.image-browser-dialog').dialog('close');
       }
     });
