@@ -1,23 +1,15 @@
 class Ckeditor::PicturesController < Ckeditor::ApplicationController
 
   def index
-    # @pictures = Ckeditor.picture_model.find_all(ckeditor_pictures_scope)
-    my_scope = ckeditor_pictures_scope
-    my_scope.delete :order
-    @pictures = Ckeditor::Picture.where(my_scope)
+    @pictures = Ckeditor.picture_adapter.find_all(ckeditor_pictures_scope)
+    @pictures = Ckeditor::Paginatable.new(@pictures).page(params[:page])
 
-    if !params[:search].blank?
-      pictures = Ckeditor::Picture.arel_table
-      @pictures = @pictures.where(pictures[:data_file_name].matches("%#{params[:search]}%"))
-    end
-
-    @pictures = @pictures.order('id DESC').paginate(:page => params[:page], :per_page => 71) #71 # 98 # 80
-    respond_with(@pictures)
+    respond_with(@pictures, :layout => @pictures.first_page?)
   end
 
   def create
-    @picture = Ckeditor::Picture.new
-	  respond_with_asset(@picture)
+    @picture = Ckeditor.picture_model.new
+    respond_with_asset(@picture)
   end
 
   def destroy
@@ -28,11 +20,11 @@ class Ckeditor::PicturesController < Ckeditor::ApplicationController
   protected
 
     def find_asset
-      @picture = Ckeditor.picture_model.get!(params[:id])
+      @picture = Ckeditor.picture_adapter.get!(params[:id])
     end
 
     def authorize_resource
-      model = (@picture || Ckeditor::Picture)
+      model = (@picture || Ckeditor.picture_model)
       @authorization_adapter.try(:authorize, params[:action], model)
     end
 end
