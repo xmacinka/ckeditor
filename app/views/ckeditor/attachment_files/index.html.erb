@@ -15,6 +15,8 @@
   <div class="fileupload-list">
     <%= render :partial => 'ckeditor/shared/asset', :collection => @attachments.scoped %>		
   </div>
+
+  <%= will_paginate @attachments %>
 </div>
 
 <script type="text/javascript">
