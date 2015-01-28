@@ -15,7 +15,9 @@ class Ckeditor::PicturesController < Ckeditor::ApplicationController
     end
 
     @pictures = @pictures.order('id DESC').paginate(:page => params[:page], :per_page => 71) #71 # 98 # 80
-    respond_with(@pictures)
+    respond_to do |format|
+      format.html { render :layout => @pictures }
+    end
   end
 
   def create
@@ -25,7 +27,11 @@ class Ckeditor::PicturesController < Ckeditor::ApplicationController
 
   def destroy
     @picture.destroy
-    respond_with(@picture, :location => pictures_path)
+
+    respond_to do |format|
+      format.html { redirect_to pictures_path }
+      format.json { render :nothing => true, :status => 204 }
+    end
   end
 
   protected

@@ -14,7 +14,9 @@ class Ckeditor::AttachmentFilesController < Ckeditor::ApplicationController
       @attachments = @attachments.where(attachments[:data_file_name].matches("%#{params[:search]}%"))
     end
 
-    respond_with(@attachments)
+    respond_to do |format|
+      format.html { render :layout => @attachments }
+    end
   end
 
   def create
@@ -24,7 +26,11 @@ class Ckeditor::AttachmentFilesController < Ckeditor::ApplicationController
 
   def destroy
     @attachment.destroy
-    respond_with(@attachment, :location => attachment_files_path)
+
+    respond_to do |format|
+      format.html { redirect_to attachment_files_path }
+      format.json { render :nothing => true, :status => 204 }
+    end
   end
 
   protected
