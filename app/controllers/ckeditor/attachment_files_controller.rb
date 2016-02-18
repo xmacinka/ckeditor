@@ -15,7 +15,7 @@ class Ckeditor::AttachmentFilesController < Ckeditor::ApplicationController
     end
 
     respond_to do |format|
-      format.html { render :layout => @attachments }
+      format.html { render :layout => true }
     end
   end
 

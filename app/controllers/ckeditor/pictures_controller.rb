@@ -17,7 +17,7 @@ class Ckeditor::PicturesController < Ckeditor::ApplicationController
 
     @pictures = @pictures.order('id DESC').paginate(:page => params[:page], :per_page => 71) #71 # 98 # 80
     respond_to do |format|
-      format.html { render :layout => @pictures }
+      format.html { render :layout => true }
     end
   end
 
