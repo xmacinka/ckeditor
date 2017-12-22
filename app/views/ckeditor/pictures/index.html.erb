@@ -1,5 +1,5 @@
-<form action="<%= url_for params.except(:search, :controller, :action) %>" id="ckeditor-search">
-<% params.except(:search, :controller, :action).each do |key,param| %>
+<form action="<%= url_for params.except(:search, :controller, :action).permit! %>" id="ckeditor-search">
+<% params.except(:search, :controller, :action).permit!.each do |key,param| %>
   <input type="hidden" name="<%= key %>" value="<%= param %>">
 <% end %> 
 <input class="search-by-name" type="text" name="search" value="<%= params[:search] %>">
