@@ -6,11 +6,13 @@
 <input type="submit" value="Search by filename" class="btn">
 </form>
 <div id="fileupload" class="gal-holder">
+  <% if @authorization_adapter.authorized?('create', Ckeditor.picture_model) %>
   <div class="gal-item">
     <div class="fileupload-button gal-upload-holder">
   		<%= link_to I18n.t(:upload, :scope => [:ckeditor, :buttons]), 'javascript:void(0)', :class => "add" %>
 		</div>
 	</div>
+  <% end %>
   
   <div class="fileupload-list">
     <%= render :partial => 'ckeditor/shared/asset', :collection => @pictures %>		
