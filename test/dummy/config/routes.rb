@@ -1,6 +1,8 @@
-Dummy::Application.routes.draw do
-  resources :posts
-  root :to => "posts#index"
+# frozen_string_literal: true
 
-  mount Ckeditor::Engine => '/ckeditor'
+Rails.application.routes.draw do
+  resources :posts
+  root to: "posts#index"
+
+  mount Ckeditor::Engine, at: '/ckeditor'
 end

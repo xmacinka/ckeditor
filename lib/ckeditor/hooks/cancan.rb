@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'cancan'
 
 module Ckeditor
   module Hooks
-    # This adapter is for the CanCan[https://github.com/ryanb/cancan] authorization library.
+    # This adapter is for the CanCanCan[https://github.com/CanCanCommunity/cancancan] authorization library.
     # You can create another adapter for different authorization behavior, just be certain it
     # responds to each of the public methods here.
     class CanCanAuthorization
@@ -19,7 +21,10 @@ module Ckeditor
       # action as a symbol (:create, :destroy, etc.). The second argument is the actual model
       # instance if it is available.
       def authorize(action, model_object = nil)
-        @controller.authorize!(action.to_sym, model_object) if action
+        if action
+          @controller.instance_variable_set(:@_authorized, true)
+          @controller.current_ability.authorize!(action.to_sym, model_object)
+        end
       end
 
       # This method is called primarily from the view to determine whether the given user
@@ -29,8 +34,6 @@ module Ckeditor
       def authorized?(action, model_object = nil)
         @controller.current_ability.can?(action.to_sym, model_object) if action
       end
-
-      private
 
       module ControllerExtension
         def current_ability
@@ -44,3 +47,4 @@ module Ckeditor
 end
 
 Ckeditor::AUTHORIZATION_ADAPTERS[:cancan] = Ckeditor::Hooks::CanCanAuthorization
+Ckeditor::AUTHORIZATION_ADAPTERS[:cancancan] = Ckeditor::Hooks::CanCanAuthorization

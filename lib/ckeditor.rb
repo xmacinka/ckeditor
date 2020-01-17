@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'orm_adapter'
 require 'pathname'
 
@@ -6,6 +8,7 @@ module Ckeditor
   autoload :Http, 'ckeditor/http'
   autoload :TextArea, 'ckeditor/text_area'
   autoload :Paginatable, 'ckeditor/paginatable'
+  autoload :AssetResponse, 'ckeditor/asset_response'
 
   module Helpers
     autoload :ViewHelper, 'ckeditor/helpers/view_helper'
@@ -21,67 +24,85 @@ module Ckeditor
   end
 
   module Backend
+    autoload :ActiveStorage, 'ckeditor/backend/active_storage'
     autoload :Paperclip, 'ckeditor/backend/paperclip'
     autoload :CarrierWave, 'ckeditor/backend/carrierwave'
     autoload :Dragonfly, 'ckeditor/backend/dragonfly'
+    autoload :Shrine, 'ckeditor/backend/shrine'
   end
 
-  IMAGE_TYPES = %w(image/jpeg image/png image/gif image/jpg image/pjpeg image/tiff image/x-png)
+  IMAGE_TYPES = %w[image/jpeg image/png image/gif image/jpg image/pjpeg image/tiff image/x-png].freeze
 
-  DEFAULT_AUTHORIZE = Proc.new {}
+  DEFAULT_AUTHORIZE = -> {}
 
   AUTHORIZATION_ADAPTERS = {}
 
-  DEFAULT_CURRENT_USER = Proc.new do
-    request.env["warden"].try(:user) || respond_to?(:current_user) && current_user
+  DEFAULT_CURRENT_USER = lambda do
+    request.env['warden'].try(:user) || respond_to?(:current_user) && current_user
   end
 
   # Allowed image file types for upload.
   # Set to nil or [] (empty array) for all file types
   mattr_accessor :image_file_types
-  @@image_file_types = %w(jpg jpeg png gif tiff)
+  @@image_file_types = %w[jpg jpeg png gif tiff]
+
+  # Allowed flash file types for upload.
+  # Set to nil or [] (empty array) for all file types
+  mattr_accessor :flash_file_types
+  @@flash_file_types = %w[swf]
 
   # Allowed attachment file types for upload.
   # Set to nil or [] (empty array) for all file types
   mattr_accessor :attachment_file_types
-  @@attachment_file_types = %w(doc docx xls odt ods pdf rar zip tar tar.gz swf)
+  @@attachment_file_types = %w[doc docx xls odt ods pdf rar zip tar tar.gz swf]
 
   # Ckeditor files destination path
   mattr_accessor :relative_path
-  @@relative_path = '/assets/ckeditor'
+  @@relative_path = 'ckeditor'
 
   # Ckeditor assets path
   mattr_accessor :asset_path
-  @@asset_path = (Rails::VERSION::MAJOR == 4 ? 'assets/ckeditor' : 'ckeditor')
+  @@asset_path = nil
 
-  # Ckeditor assets for precompilation
-  mattr_accessor :assets
-  @@assets = nil
-
-  # Turn on/off filename parameterize
-  mattr_accessor :parameterize_filenames
-  @@parameterize_filenames = true
+  # Remove digest from ckeditor asset files while running assets:precompile task?
+  mattr_accessor :run_on_precompile
+  @@run_on_precompile = true
 
   # Paginate assets
   mattr_accessor :default_per_page
   @@default_per_page = 24
 
-  # Asset restrictions
-  mattr_accessor :assets_languages
-  mattr_accessor :assets_plugins
-  @@assets_languages = nil
-  @@assets_plugins = nil
+  # CKEditor CDN
+  mattr_accessor :cdn_url
+  @@cdn_url = '//cdn.ckeditor.com/4.11.3/standard/ckeditor.js'
+
+  # Url to ckeditor config, used when CDN enabled
+  mattr_accessor :js_config_url
+  @@js_config_url = 'ckeditor/config.js'
 
   # Model classes
   @@picture_model = nil
   @@attachment_file_model = nil
+
+  # Configurable parent controller
+  mattr_accessor :parent_controller
+  @@parent_controller = 'ApplicationController'
+
+  # Configurable controller layout
+  mattr_accessor :controller_layout
+  @@controller_layout = 'ckeditor/application'
+
+  # Turn on/off assets pipeline
+  # By default ckeditor will check assets pipeline
+  mattr_accessor :assets_pipeline_enabled
+  @@assets_pipeline_enabled = nil
 
   # Default way to setup Ckeditor. Run rails generate ckeditor to create
   # a fresh initializer with all configuration values.
   #
   # @example
   #   Ckeditor.setup do |config|
-  #     config.parameterize_filenames = false
+  #     config.default_per_page = 30
   #     config.attachment_file_types += ["xml"]
   #   end
   #
@@ -93,9 +114,25 @@ module Ckeditor
     @root_path ||= Pathname.new(File.dirname(File.expand_path('../', __FILE__)))
   end
 
+  def self.base_path
+    @base_path ||= (asset_path || File.join([Rails.application.config.assets.prefix, '/ckeditor/']))
+  end
+
   # All css and js files from ckeditor folder
   def self.assets
-    @@assets ||= Utils.select_assets("ckeditor", "vendor/assets/javascripts") << "ckeditor/init.js"
+    @assets ||= Ckeditor.cdn_enabled? ? ['ckeditor/config.js'] : []
+  end
+
+  def self.assets=(value)
+    @assets = value.nil? ? nil : Array(value)
+  end
+
+  def self.run_on_precompile?
+    @@run_on_precompile
+  end
+
+  def self.cdn_enabled?
+    !@@cdn_url.nil?
   end
 
   def self.picture_model(&block)
@@ -157,22 +194,22 @@ module Ckeditor
   #   end
   #
   # To use an authorization adapter, pass the name of the adapter. For example,
-  # to use with CanCan[https://github.com/ryanb/cancan], pass it like this.
+  # to use with CanCanCan[https://github.com/CanCanCommunity/cancancan], pass it like this.
   #
-  # @example CanCan
+  # @example CanCanCan
   #   Ckeditor.setup do |config|
-  #     config.authorize_with :cancan
+  #     config.authorize_with :cancancan
   #   end
   #
   def self.authorize_with(*args, &block)
     extension = args.shift
 
     if extension
-      @authorize = Proc.new {
+      @authorize = lambda do
         @authorization_adapter = Ckeditor::AUTHORIZATION_ADAPTERS[extension].new(*([self] + args).compact)
-      }
-    else
-      @authorize = block if block
+      end
+    elsif block_given?
+      @authorize = block
     end
 
     @authorize || DEFAULT_AUTHORIZE
@@ -191,10 +228,15 @@ module Ckeditor
   #   end
   #
   def self.current_user_method(&block)
-    @current_user = block if block
+    @current_user = block if block_given?
     @current_user || DEFAULT_CURRENT_USER
+  end
+
+  def self.assets_pipeline_enabled?
+    @@assets_pipeline_enabled = Utils.assets_pipeline_enabled? if @@assets_pipeline_enabled.nil?
+    @@assets_pipeline_enabled
   end
 end
 
-require 'ckeditor/engine'
+require 'ckeditor/rails'
 require 'ckeditor/version'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Ckeditor::PicturePolicy
   attr_reader :user, :picture
 
@@ -7,14 +9,14 @@ class Ckeditor::PicturePolicy
   end
 
   def index?
-    true and ! @user.nil?
+    user.present?
   end
 
   def create?
-    true and ! @user.nil?
+    user.present?
   end
 
   def destroy?
-    @picture.assetable_id == @user.id
+    user.present?
   end
 end

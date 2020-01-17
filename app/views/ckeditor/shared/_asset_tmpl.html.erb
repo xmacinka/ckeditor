@@ -1,4 +1,5 @@
 <script id="fileupload_tmpl" type="text/x-jquery-tmpl">
+<<<<<<< HEAD
 <div id="asset_${id}" class="gal-item" data-url="${url_content}" data-id="${id}">
   <%= link_to image_tag('ckeditor/filebrowser/images/gal_del.png',
     :title => I18n.t('ckeditor.buttons.delete')), 
@@ -18,5 +19,25 @@
 			</div>
 		</div>
 	</div>
+=======
+<div id="asset_${id}" class="gal-item" data-url="${url_content}">
+  <%= link_to '', "/ckeditor/${controller}/${id}.json",
+          remote: true,
+          method: :delete,
+          title: I18n.t('ckeditor.buttons.delete'),
+          data: { confirm: t('ckeditor.confirm_delete') },
+          class: "fileupload-cancel gal-del" %>
+
+  <div class="fileupload-file gal-inner-holder">
+    <div class="img"><img src="${url_thumb}" title="${filename}"></div>
+    <div class="img-data">
+      <div class="img-name">${filename}</div>
+      <div class="time-size">
+        <div class="time">${format_created_at}</div>
+        <div class="fileupload-size size">${size}</div>
+      </div>
+    </div>
+  </div>
+>>>>>>> galetahub/master
 </div>
 </script>

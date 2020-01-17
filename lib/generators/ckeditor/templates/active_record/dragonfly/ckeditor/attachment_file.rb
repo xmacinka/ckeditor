@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class Ckeditor::AttachmentFile < Ckeditor::Asset
-  validates_property :format, :of => :data, :in => attachment_file_types unless attachment_file_types.empty?
+  validates_property :ext, of: :data, in: attachment_file_types unless attachment_file_types.empty?
 
   def url_thumb
     Ckeditor::Utils.filethumb(filename)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Ckeditor::AttachmentFilePolicy
   attr_reader :user, :attachment
 
@@ -7,14 +9,14 @@ class Ckeditor::AttachmentFilePolicy
   end
 
   def index?
-    true and ! @user.nil?
+    user.present?
   end
 
   def create?
-    true and ! @user.nil?
+    user.present?
   end
 
   def destroy?
-    @attachment.assetable_id == @user.id
+    user.present?
   end
 end
