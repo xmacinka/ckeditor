@@ -29,7 +29,7 @@ class Ckeditor::AttachmentFilesController < Ckeditor::ApplicationController
 
     respond_to do |format|
       format.html { redirect_to attachment_files_path }
-      format.json { render :nothing => true, :status => 204 }
+      format.json { render :body => nil, :status => 204 }
     end
   end
 

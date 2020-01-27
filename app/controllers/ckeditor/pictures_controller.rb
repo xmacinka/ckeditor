@@ -31,7 +31,7 @@ class Ckeditor::PicturesController < Ckeditor::ApplicationController
 
     respond_to do |format|
       format.html { redirect_to pictures_path }
-      format.json { render :nothing => true, :status => 204 }
+      format.json { render :body => nil, :status => 204 }
     end
   end
 
