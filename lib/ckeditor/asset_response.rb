@@ -52,7 +52,7 @@ module Ckeditor
           </script>"
         }
       else
-        {nothing: true, format: :json}
+        {body: nil, format: :json}
       end
     end
   end
