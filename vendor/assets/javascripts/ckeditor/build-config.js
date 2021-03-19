@@ -1,6 +1,6 @@
 ﻿/**
- * @license Copyright (c) 2003-2016, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/license
  */
 
 /**
@@ -10,13 +10,13 @@
  * If you would like to build CKEditor online again
  * (for example to upgrade), visit one the following links:
  *
- * (1) http://ckeditor.com/builder
+ * (1) https://ckeditor.com/cke4/builder
  *     Visit online builder to build CKEditor from scratch.
  *
- * (2) http://ckeditor.com/builder/f92070fac04cd7ee002d29b1b8de4f69
+ * (2) https://ckeditor.com/cke4/builder/ea5b188fbd17e12cb167a0b7207a2cd2
  *     Visit online builder to build CKEditor, starting with the same setup as before.
  *
- * (3) http://ckeditor.com/builder/download/f92070fac04cd7ee002d29b1b8de4f69
+ * (3) https://ckeditor.com/cke4/builder/download/ea5b188fbd17e12cb167a0b7207a2cd2
  *     Straight download link to the latest version of CKEditor (Optimized) with the same setup as before.
  *
  * NOTE:
@@ -25,28 +25,33 @@
  */
 
 var CKBUILDER_CONFIG = {
-	skin: 'moonocolor',
+	skin: 'moono-lisa',
 	preset: 'full',
 	ignore: [
-		'.bender',
-		'bender.js',
-		'bender-err.log',
-		'bender-out.log',
-		'dev',
 		'.DS_Store',
+		'.bender',
 		'.editorconfig',
 		'.gitattributes',
 		'.gitignore',
-		'gruntfile.js',
 		'.idea',
 		'.jscsrc',
 		'.jshintignore',
 		'.jshintrc',
-		'less',
 		'.mailmap',
-		'node_modules',
-		'package.json',
+		'.npm',
+		'.nvmrc',
+		'.travis.yml',
 		'README.md',
+		'bender-err.log',
+		'bender-out.log',
+		'bender.ci.js',
+		'bender.js',
+		'dev',
+		'gruntfile.js',
+		'less',
+		'node_modules',
+		'package-lock.json',
+		'package.json',
 		'tests'
 	],
 	plugins : {
