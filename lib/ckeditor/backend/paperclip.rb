@@ -12,7 +12,7 @@ module Ckeditor
         def self.extended(base)
           base.class_eval do
             before_validation :extract_content_type
-            before_create :read_dimensions, :parameterize_filename
+            before_create :read_dimensions
 
             delegate :url, :path, :styles, :size, :content_type, :to => :data
           end
@@ -28,13 +28,6 @@ module Ckeditor
         end
 
         protected
-
-          def parameterize_filename
-            unless data_file_name.blank?
-              filename = Ckeditor::Utils.parameterize_filename(data_file_name)
-              self.data.instance_write(:file_name, filename)
-            end
-          end
 
           def read_dimensions
             if image? && has_dimensions?
