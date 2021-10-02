@@ -14,6 +14,8 @@ class Ckeditor::AttachmentFilesController < Ckeditor::ApplicationController
       @attachments = @attachments.where(attachments[:data_file_name].matches("%#{params[:search]}%"))
     end
 
+    @attachments = @attachments.order('id DESC').paginate(:page => params[:page], :per_page => 71)
+
     respond_to do |format|
       format.html { render :layout => true }
     end
