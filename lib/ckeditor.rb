@@ -78,6 +78,7 @@ module Ckeditor
   # Model classes
   @@picture_model = nil
   @@attachment_file_model = nil
+  @@folder_model = nil
 
   # Default way to setup Ckeditor. Run rails generate ckeditor to create
   # a fresh initializer with all configuration values.
@@ -149,6 +150,30 @@ module Ckeditor
 
   def self.attachment_file_adapter
     attachment_file_model.to_adapter
+  end
+
+
+  def self.folder_model(&block)
+    if block_given?
+      self.folder_model = block
+    else
+      @@folder_model_class ||= begin
+        if @@folder_model.respond_to? :call
+          @@folder_model.call
+        else
+          @@folder_model || Ckeditor::Folder
+        end
+      end
+    end
+  end
+
+  def self.folder_model=(value)
+    @@folder_model_class = nil
+    @@folder_model = value
+  end
+
+  def self.folder_adapter
+    folder_model.to_adapter
   end
 
   # Setup authorization to be run as a before filter

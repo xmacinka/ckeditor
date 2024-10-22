@@ -117,3 +117,11 @@ input.search-by-name{
   margin-top: 15px;
   text-align: center;
 }
+
+.alert.center{
+  margin-top: 5px;
+  margin-bottom: 5px;
+  width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}

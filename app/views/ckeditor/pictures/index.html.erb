@@ -5,7 +5,67 @@
 <input class="search-by-name" type="text" name="search" value="<%= params[:search] %>">
 <input type="submit" value="Search by filename" class="btn">
 </form>
-<div id="fileupload" class="gal-holder">
+
+
+
+<% if @authorization_adapter.authorized?('create', Ckeditor.picture_model) %>
+
+<form action="<%= url_for folders_url %>" method="post" id="ckeditor-new-folder">
+<% params.except(:search, :controller, :action).permit!.each do |key,param| %>
+  <input type="hidden" name="<%= key %>" value="<%= param %>">
+<% end %>
+
+<% if @current_folder %>
+<input type="hidden" name="parent_id" value="<%= @current_folder.id %>">
+<% end %>
+
+<input type="hidden" name="type" value="picture">
+<input type="hidden" name="redirect_back_url" value="<%= url_for params.permit! %>">
+<input type="text" name="folder_name" value="<%= params[:folder_name] %>" required>
+<input type="submit" value="Create new folder" class="btn">
+</form>
+
+<% end %>
+
+
+<% if flash[:notice] %>
+<div class="alert alert-info alert-block center">
+<%= flash[:notice] %>
+</div>
+<% end %>
+
+
+<% if flash[:error] %>
+<div class="alert alert-block center">
+<%= flash[:error] %>
+</div>
+<% end %>
+
+<div>
+  <% if @current_path %>
+  Current path: 
+
+  <% if @current_path %>
+  <a href="<%= url_for params.merge(:folder_id => nil).permit!%>">Go to top</a> /
+  <% end %>
+  <% @current_path.each_with_index do |folder,i| %>
+  <a href="<%= url_for params.merge(:folder_id => folder.id).permit! %>"><%= folder.name %></a><% if i != @current_path.size - 1 %> / <% end %> 
+
+  <% end %>
+  <% end %>
+</div>
+
+<div id="fileupload" class="gal-holder" style="display: grid; grid-template-columns: 250px auto;">
+
+
+  <div class="folders-list" style="">
+    <div>
+    <%= render :partial => 'ckeditor/shared/folder', :collection => @folders %>
+    </div>
+  </div>
+
+  <div style="">
+
   <% if @authorization_adapter.authorized?('create', Ckeditor.picture_model) %>
   <div class="gal-item">
     <div class="fileupload-button gal-upload-holder">
@@ -15,12 +75,15 @@
   <% end %>
   
   <div class="fileupload-list">
-    <%= render :partial => 'ckeditor/shared/asset', :collection => @pictures %>		
+    <%= render :partial => 'ckeditor/shared/asset', :collection => @pictures %>
   </div>
 
   <%= will_paginate @pictures %>
+  
+  </div>
+
 </div>
 
 <script type="text/javascript">
-  <%= Ckeditor::Utils.js_fileuploader('image') %>
+  <%= Ckeditor::Utils.js_fileuploader('image', {params: {ckeditor_folder_id: @current_folder ? @current_folder.id : nil}}) %>
 </script>

@@ -1,0 +1,19 @@
+<%= content_tag(:div, :id => dom_id(folder), :class => "gal-item folder-item", :"data-url" => "", :"data-id" => folder.id) do %>
+  <%= link_to image_tag("/assets/ckeditor/filebrowser/images/trash-1.svg", 
+    :title => I18n.t('ckeditor.buttons.delete')), 
+          polymorphic_path(folder, :format => :html), 
+          :remote => false,
+          :method => :delete, 
+          :data => {:confirm => 'Delete folder "'+folder.name.to_s+'" ?'},
+          :class => "fileupload-cancel gal-del" %>
+
+		<a href="<%= url_for params.merge(:folder_id => folder.id).permit! %>">
+		<div class="folder-image"><img src="<%= "/assets/ckeditor/filebrowser/images/folder-1.svg" %>" title="<%= folder.name %>"/></div>
+		<div class="img-data">
+			<div class="img-name"><%= folder.name %></div>
+			<div class="time-size">
+				<div class="fileupload-size size"><%= "" %></div>
+			</div>
+		</div>
+		</a>
+<% end %>

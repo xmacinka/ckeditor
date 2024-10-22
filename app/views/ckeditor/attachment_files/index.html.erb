@@ -20,5 +20,5 @@
 </div>
 
 <script type="text/javascript">
-  <%= Ckeditor::Utils.js_fileuploader('attachments') %>
+  <%= Ckeditor::Utils.js_fileuploader('attachments', {params: {ckeditor_folder_id: @current_folder ? @current_folder.id : nil}}) %>
 </script>

@@ -47,7 +47,7 @@ module Ckeditor
             options[:action] = JavascriptCode.new("EDITOR.config.filebrowserFlashUploadUrl")
             options[:allowedExtensions] = ["swf"]
           else
-            options[:action] = JavascriptCode.new("EDITOR.config.filebrowserUploadUrl")
+            options[:action] = JavascriptCode.new("EDITOR.config.filebrowserUploadUrl")+"?folder_id="+folder_id.to_s
             options[:allowedExtensions] = Ckeditor.attachment_file_types
         end
 
