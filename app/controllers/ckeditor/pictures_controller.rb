@@ -2,52 +2,39 @@ class Ckeditor::PicturesController < Ckeditor::ApplicationController
   skip_before_action :verify_authenticity_token, only: :create # FIXME: this should go away
 
 
-  def get_path(folder, folders)    
-
-    if folder
-      parent = folders.find_by(:id => folder.parent_id)
-      path = get_path(parent, folders)
-
-      return path + [folder]
-    else
-      return []
-    end
-
-  end
-
   def index
-    # @pictures = Ckeditor.picture_adapter.find_all(ckeditor_pictures_scope)
-    # @pictures = Ckeditor::Paginatable.new(@pictures).page(params[:page])
-
-    # respond_with(@pictures, :layout => @pictures.first_page?)
-
+    @folders_feature = ckeditor_folders_enabled
 
     my_scope = ckeditor_pictures_scope
     my_scope.delete :order
-    @pictures = Ckeditor::Picture.where(my_scope)
+    @files = Ckeditor::Picture.where(my_scope)
 
     if !params[:search].blank?
       pictures = Ckeditor::Picture.arel_table
-      @pictures = @pictures.where(pictures[:data_file_name].matches("%#{params[:search]}%"))
+      @files = @files.where(pictures[:data_file_name].matches("%#{params[:search]}%"))
     end
 
     @folders = Ckeditor::Folder.where(my_scope)
 
     @folders = @folders.where(picture_folder: true)
 
+    @all_folders = @folders
+
+    @at_least_one_folder_exists = @all_folders.count > 0
+
     @current_folder = Ckeditor::Folder.where(picture_folder: true).where(my_scope).find_by( id: params[:folder_id])
     @current_path = nil
 
     if @current_folder
-      @current_path = get_path(@current_folder, @folders)
+      @current_path = Ckeditor::Folder.get_path(@folders, @current_folder)
 
       @folders = @folders.where(:parent_id => @current_folder.id)
-      @pictures = @pictures.where(:ckeditor_folder_id => @current_folder.id)
+      @files = @files.where(:ckeditor_folder_id => @current_folder.id)
 
     else
       @folders = @folders.where(:parent_id => nil)
 
-      @pictures = @pictures.where(:ckeditor_folder_id => nil)
+      @files = @files.where(:ckeditor_folder_id => nil)
     end
 
     # # if params[:folder_id]
@@ -56,7 +43,7 @@ class Ckeditor::PicturesController < Ckeditor::ApplicationController
 
     @folders = @folders.order('name ASC')
 
-    @pictures = @pictures.order('id DESC').paginate(:page => params[:page], :per_page => 71) #71 # 98 # 80
+    @files = @files.order('id DESC').paginate(:page => params[:page], :per_page => 71) #71 # 98 # 80
 
     respond_to do |format|
       format.html { render :layout => true }
@@ -64,8 +51,7 @@ class Ckeditor::PicturesController < Ckeditor::ApplicationController
   end
 
   def create
-    @picture = Ckeditor.picture_model.new
-
+    @file = Ckeditor.picture_model.new
 
     my_scope = ckeditor_pictures_scope
     my_scope.delete :order
@@ -73,14 +59,14 @@ class Ckeditor::PicturesController < Ckeditor::ApplicationController
     @current_folder = Ckeditor::Folder.where(picture_folder: true).where(my_scope).find_by( id: params[:ckeditor_folder_id])
 
     if @current_folder
-      @picture.ckeditor_folder_id = @current_folder.id
+      @file.ckeditor_folder_id = @current_folder.id
     end
 
-    respond_with_asset(@picture)
+    respond_with_asset(@file)
   end
 
   def destroy
-    @picture.destroy
+    @file.destroy
 
     respond_to do |format|
       format.html { redirect_to pictures_path }
@@ -91,11 +77,11 @@ class Ckeditor::PicturesController < Ckeditor::ApplicationController
   protected
 
     def find_asset
-      @picture = Ckeditor.picture_adapter.get!(params[:id])
+      @file = Ckeditor.picture_adapter.get!(params[:id])
     end
 
     def authorize_resource
-      model = (@picture || Ckeditor.picture_model)
+      model = (@file || Ckeditor.picture_model)
       @authorization_adapter.try(:authorize, params[:action], model)
     end
 end

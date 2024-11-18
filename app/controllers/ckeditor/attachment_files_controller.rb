@@ -1,20 +1,49 @@
 class Ckeditor::AttachmentFilesController < Ckeditor::ApplicationController
+  skip_before_action :verify_authenticity_token, only: :create # FIXME: this should go away
+
 
   def index
-    # @attachments = Ckeditor.attachment_file_adapter.find_all(ckeditor_attachment_files_scope)
-    # @attachments = Ckeditor::Paginatable.new(@attachments).page(params[:page])
+    @folders_feature = ckeditor_folders_enabled
 
-    # respond_with(@attachments, :layout => @attachments.first_page?)
     my_scope = ckeditor_attachment_files_scope
     my_scope.delete :order
-    @attachments = Ckeditor::AttachmentFile.where(my_scope)
+    @files = Ckeditor::AttachmentFile.where(my_scope)
 
     if !params[:search].blank?
-      attachments = Ckeditor::AttachmentFile.arel_table
-      @attachments = @attachments.where(attachments[:data_file_name].matches("%#{params[:search]}%"))
+      pictures = Ckeditor::AttachmentFile.arel_table
+      @files = @files.where(pictures[:data_file_name].matches("%#{params[:search]}%"))
     end
 
-    @attachments = @attachments.order('id DESC').paginate(:page => params[:page], :per_page => 71)
+    @folders = Ckeditor::Folder.where(my_scope)
+
+    @folders = @folders.where(picture_folder: false)
+
+    @all_folders = @folders
+
+    @at_least_one_folder_exists = @all_folders.count > 0
+
+    @current_folder = Ckeditor::Folder.where(picture_folder: false).where(my_scope).find_by( id: params[:folder_id])
+    @current_path = nil
+
+    if @current_folder
+      @current_path = Ckeditor::Folder.get_path(@folders, @current_folder)
+
+      @folders = @folders.where(:parent_id => @current_folder.id)
+      @files = @files.where(:ckeditor_folder_id => @current_folder.id)
+
+    else
+      @folders = @folders.where(:parent_id => nil)
+
+      @files = @files.where(:ckeditor_folder_id => nil)
+    end
+
+    # # if params[:folder_id]
+    #   @folders = @folders.where(:parent_id => params[:folder_id])
+    # end
+
+    @folders = @folders.order('name ASC')
+
+    @files = @files.order('id DESC').paginate(:page => params[:page], :per_page => 71) #71 # 98 # 80
 
     respond_to do |format|
       format.html { render :layout => true }
@@ -22,12 +51,22 @@ class Ckeditor::AttachmentFilesController < Ckeditor::ApplicationController
   end
 
   def create
-    @attachment = Ckeditor.attachment_file_model.new
-    respond_with_asset(@attachment)
+    @file = Ckeditor.attachment_file_model.new
+
+    my_scope = ckeditor_attachment_files_scope
+    my_scope.delete :order
+
+    @current_folder = Ckeditor::Folder.where(picture_folder: false).where(my_scope).find_by( id: params[:ckeditor_folder_id])
+
+    if @current_folder
+      @file.ckeditor_folder_id = @current_folder.id
+    end
+
+    respond_with_asset(@file)
   end
 
   def destroy
-    @attachment.destroy
+    @file.destroy
 
     respond_to do |format|
       format.html { redirect_to attachment_files_path }
@@ -38,11 +77,11 @@ class Ckeditor::AttachmentFilesController < Ckeditor::ApplicationController
   protected
 
     def find_asset
-      @attachment = Ckeditor.attachment_file_adapter.get!(params[:id])
+      @file = Ckeditor.attachment_file_adapter.get!(params[:id])
     end
 
     def authorize_resource
-      model = (@attachment || Ckeditor.attachment_file_model)
+      model = (@file || Ckeditor.attachment_file_model)
       @authorization_adapter.try(:authorize, params[:action], model)
     end
 end

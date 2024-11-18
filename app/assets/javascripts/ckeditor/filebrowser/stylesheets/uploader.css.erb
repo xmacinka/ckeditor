@@ -16,7 +16,7 @@ img {
 }
 .gal-holder .gal-item {
     display: inline-block;
-    width: 150px;
+    width: 168px;
 	overflow: hidden;
 	position: relative;
 	margin: 0 12px 12px 0;
@@ -51,8 +51,27 @@ img {
     height: 24px;
 }
 
-.folder-item{
+.current-path{
+    margin: 4px 8px;
+    font-size: 90%;
+    margin-left: 20px;
+}
+
+.new-folder-button, .rename-folder-button{
+    margin: 4px 8px;
+}
+
+.new-folder-button{
+    margin-left: 20px;
+}
+
+#ckeditor-new-folder, #ckeditor-rename-folder{
+    display: inline-block;
+}
+
+.gal-holder .folder-item{
     line-height: 24px;
+    width: 230px;
 }
 
 .gal-holder .folder-item .gal-del img{
@@ -67,9 +86,10 @@ img {
 }
 .gal-holder .gal-item .gal-inner-holder, .gal-holder .gal-item .gal-upload-holder {
 	display: block;
-	margin: 6px 6px 0 0;
+	margin: 2px 6px 0 0;
 	overflow: hidden;
 	padding: 12px;
+    padding-bottom: 8px;
 	background: #fff;
 	border: solid 1px #D3D3D3;
 	min-height: 138px;
@@ -100,13 +120,22 @@ img {
 .gal-holder .gal-item .gal-inner-holder .img {
 	height: 100px;
 	overflow: hidden;
-	cursor:pointer;
     text-align: center;
 }
-.gal-holder .gal-item .gal-inner-holder .img img {
-    max-width: 100px;
-    max-height: 100px;
+
+.checkbox-holder{
+    display: block;
+    position: absolute;
+    left: 3px;
+    top: 3px;
 }
+
+.gal-holder .gal-item .gal-inner-holder .img img {
+    max-width: 120px;
+    max-height: 100px;
+    cursor:pointer;
+}
+
 .gal-holder .gal-item .gal-inner-holder .img.preloader {
 	padding: 27px 0 0 0;
 	height: 73px;

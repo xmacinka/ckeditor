@@ -1,6 +1,224 @@
 <form action="<%= url_for params.except(:search, :controller, :action).permit! %>" id="ckeditor-search">
 <% params.except(:search, :controller, :action).permit!.each do |key,param| %>
   <input type="hidden" name="<%= key %>" value="<%= param %>">
+<% end %> 
+<input class="search-by-name" type="text" name="search" value="<%= params[:search] %>">
+<input type="submit" value="Search by filename" class="btn" title="Only searches in the current folder">
+</form>
+
+<% if !flash[:notice].blank? %>
+<div class="alert alert-info alert-block center">
+<%= flash[:notice] %>
+</div>
+<% end %>
+
+
+<% if !flash[:error].blank? %>
+<div class="alert alert-block center">
+<%= flash[:error] %>
+</div>
+<% end %>
+
+
+<div class="current-path">
+  <% if @current_path %>
+  Current path: 
+
+  <% if @current_path %>
+  <a href="<%= url_for params.merge(:folder_id => nil, :search => nil).permit!%>">Go to top</a> /
+  <% end %>
+  <% @current_path.each_with_index do |folder,i| %>
+  <a href="<%= url_for params.merge(:folder_id => folder.id, :search => nil).permit! %>"><%= folder.name %></a><% if i != @current_path.size - 1 %> / <% end %> 
+
+  <% end %>
+  <% end %>
+</div>
+
+
+<% if @folders_feature %>
+<% if @authorization_adapter.authorized?('create', Ckeditor.attachment_file_model) %>
+
+<form action="<%= url_for folders_url %>" method="post" id="ckeditor-new-folder">
+<% params.except(:search, :controller, :action).permit!.each do |key,param| %>
+  <input type="hidden" name="<%= key %>" value="<%= param %>">
+<% end %>
+
+<% if @current_folder %>
+<input type="hidden" name="parent_id" value="<%= @current_folder.id %>">
+<% end %>
+
+<input type="hidden" name="type" value="attachment">
+<input type="hidden" name="redirect_back_url" value="<%= url_for params.permit! %>">
+<input type="hidden" name="folder_name" value="" required>
+<input type="submit" value="New folder" class="btn new-folder-button">
+</form>
+
+
+<% if @current_folder %>
+
+<%= form_for(@current_folder, remote: false, html: {id: "ckeditor-rename-folder"}) do |f| %>
+<% params.except(:search, :controller, :action).permit!.each do |key,param| %>
+  <input type="hidden" name="<%= key %>" value="<%= param %>">
+<% end %>
+
+
+<input type="hidden" name="folder_id" value="<%= @current_folder.id %>">
+
+<input type="hidden" name="type" value="attachment">
+<input type="hidden" name="redirect_back_url" value="<%= url_for params.permit! %>">
+<input type="hidden" name="new_folder_name" value="<%= @current_folder.name %>" required>
+<input type="submit" value="Rename current folder" class="btn rename-folder-button">
+<% end %>
+
+<% end %>
+
+<div class="bulk-action-selector" style="display: none;">
+    <%= form_tag(bulk_action_folders_path, remote: false, html: {id: "ckeditor-move-files"}) do |f| %>
+
+    <% params.except(:search, :controller, :action).permit!.each do |key,param| %>
+      <input type="hidden" name="<%= key %>" value="<%= param %>">
+    <% end %>
+
+    <div id="bulk_action_ids" style="display: none;"></div>
+
+    <input type="hidden" name="bulk_action" value="move">
+
+    <input type="hidden" name="type" value="attachment">
+    <input type="hidden" name="redirect_back_url" value="<%= url_for params.permit! %>">
+
+    <%= select_tag(:new_folder_id, options_for_select([['root folder','']] + Ckeditor::Folder.get_tree_as_array(@all_folders).map{|folder| [ folder[:path], folder[:id] ]}), :style => 'margin-bottom: 0;width: 110px;height: 26px;font-size: 11px;') %>
+
+    <input type="submit" value="Move selected files to this folder" class="btn move-files-button">
+
+    <% end %>
+</div>
+
+<% end %>
+<% end %>
+
+<div id="fileupload" class="gal-holder" <% if @folders_feature %>style="display: grid; grid-template-columns: <% if @at_least_one_folder_exists %>250px<% else %>0px<% end %> auto;"<% end %>>
+
+
+  <% if @folders_feature || @current_folder %>
+  <div class="folders-list" style="">
+    <div>
+    <% if @current_folder && @folders.count == 0 %>
+      <div style="text-align: center;font-size: 90%;">No folders</div>
+    <% else %>
+      <%= render :partial => 'ckeditor/shared/folder', :collection => @folders %>
+    <% end %>
+    </div>
+  </div>
+  <% end %>
+
+  <div>
+
+  <% if @authorization_adapter.authorized?('create', Ckeditor.attachment_file_model) %>
+  <div class="gal-item">
+    <div class="fileupload-button gal-upload-holder">
+      <%= link_to I18n.t(:upload, :scope => [:ckeditor, :buttons]), 'javascript:void(0)', :class => "add" %>
+    </div>
+  </div>
+  <% end %>
+
+  <div class="fileupload-list">
+
+    <%= render :partial => 'ckeditor/shared/asset', :collection => @files %>
+
+  </div>
+
+  <%= will_paginate @files %>
+  
+  </div>
+
+</div>
+
+<script type="text/javascript">
+  <%= Ckeditor::Utils.js_fileuploader('attachments', {params: {ckeditor_folder_id: @current_folder ? @current_folder.id : nil}}) %>
+
+  $(document).on('click', '.rename-folder-button',
+    function(){ 
+
+      var current_name = $("input[name=\"new_folder_name\"]").val();
+
+      var name = prompt('Please enter new folder name', current_name);
+
+      if(name == null || name.length == 0){
+
+        alert("Invalid folder name");
+
+      }else{
+
+        $("input[name=\"new_folder_name\"]").val(name);
+
+        $(".ckeditor-rename-folder").submit();
+
+      }
+    });
+
+  $(document).on('click', '.new-folder-button',
+    function(){ 
+      var name = prompt('Please enter new folder name', 'Folder');
+
+      if(name == null || name.length == 0){
+
+        alert("Invalid folder name");
+
+      }else{
+
+        $("input[name=\"folder_name\"]").val(name);
+
+        $(".ckeditor-new-folder").submit();
+
+      }
+    });
+
+
+  $(document).on('click', '.fileupload-list input:checkbox',
+    function(){ 
+    event.stopPropagation();
+  });
+
+  $(document).on('change', '.fileupload-list input:checkbox',
+    function(){ 
+    var at_least_one_checked = false;
+    if($('.fileupload-list input:checked').length > 0)
+      at_least_one_checked = true;
+    if(at_least_one_checked){
+      $('.bulk-action-selector').slideDown();
+    }else{
+      $('.bulk-action-selector').slideUp();
+    }
+  });
+
+  $(document).on('click', '.move-files-button',
+    function(){ 
+
+      if($('.fileupload-list input:checkbox:checked').length == 0){
+        alert('No files selected.');
+        return false;
+      }
+
+      $('#bulk_action_ids').text("");
+
+      $('.fileupload-list input:checkbox:checked').each( function(){
+        var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr('name')).val( $(this).attr('value'));
+        $('#bulk_action_ids').append(input);
+      });
+
+
+      $(".ckeditor-move-files").submit();
+    });
+
+
+</script>
+
+
+
+<% if false %>
+<form action="<%= url_for params.except(:search, :controller, :action).permit! %>" id="ckeditor-search">
+<% params.except(:search, :controller, :action).permit!.each do |key,param| %>
+  <input type="hidden" name="<%= key %>" value="<%= param %>">
 <% end %>
 <input class="search-by-name" type="text" name="search" value="<%= params[:search] %>">
 <input type="submit" value="Search by filename" class="btn">
@@ -22,3 +240,4 @@
 <script type="text/javascript">
   <%= Ckeditor::Utils.js_fileuploader('attachments', {params: {ckeditor_folder_id: @current_folder ? @current_folder.id : nil}}) %>
 </script>
+<% end %>

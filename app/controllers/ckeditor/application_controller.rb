@@ -1,7 +1,7 @@
 class Ckeditor::ApplicationController < ApplicationController
   layout 'ckeditor/application'
 
-  before_action :find_asset, :only => [:destroy]
+  before_action :find_asset, :only => [:destroy, :update]
   before_action :ckeditor_authorize!
   before_action :authorize_resource
 

@@ -6,9 +6,12 @@
           :method => :delete, 
           :data => {:confirm => t('ckeditor.confirm_delete')},
           :class => "fileupload-cancel gal-del" %>
-	
+
+<% if @folders_feature && @at_least_one_folder_exists %>
+  <div class="checkbox-holder"><input type="checkbox" name="asset_ids[]" value="<%= asset.id %>"></div>
+<% end %>
 	<div class="fileupload-file gal-inner-holder">
-		<div class="img"><img src="<%= asset.url_thumb %>" title="<%= asset.filename %>"/></div>
+		<div class="img"><img class="gal-select" src="<%= asset.url_thumb %>" title="<%= asset.filename %>"/></div>
 		<div class="img-data">
 			<div class="img-name"><%= asset.filename %></div>
 			<div class="time-size">

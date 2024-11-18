@@ -11,7 +11,7 @@ $.QueryString = (function(a) {
 })(window.location.search.substr(1).split('&'))
 
 $(document).ready(function(){
-  var selector = "div.gal-item div.gal-inner-holder";
+  var selector = "div.gal-item .gal-select";
 
   $(document)
     .on('mouseover', selector, function(e){
@@ -22,6 +22,7 @@ $(document).ready(function(){
     })
     .on('click', selector, function(e){
 	  var url = $(this).parents('div.gal-item').data('url');
+      
       if($.QueryString["CKEditor"]){
 	      CKEDITOR.tools.callFunction(CKEditorFuncNum, url);
 	      window.close();
