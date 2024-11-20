@@ -25,10 +25,10 @@
   Current path: 
 
   <% if @current_path %>
-  <a href="<%= url_for params.merge(:folder_id => nil, :search => nil).permit!%>">Go to top</a> /
+  <a href="<%= url_for params.merge(:folder_id => nil, :search => nil, :page => nil).permit!%>">Go to top</a> /
   <% end %>
   <% @current_path.each_with_index do |folder,i| %>
-  <a href="<%= url_for params.merge(:folder_id => folder.id, :search => nil).permit! %>"><%= folder.name %></a><% if i != @current_path.size - 1 %> / <% end %> 
+  <a href="<%= url_for params.merge(:folder_id => folder.id, :search => nil, :page => nil).permit! %>"><%= folder.name %></a><% if i != @current_path.size - 1 %> / <% end %> 
 
   <% end %>
   <% end %>

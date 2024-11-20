@@ -7,7 +7,7 @@
           :data => {:confirm => 'Delete folder "'+folder.name.to_s+'" ?'},
           :class => "fileupload-cancel gal-del" %>
 
-		<a href="<%= url_for params.merge(:folder_id => folder.id, :search => nil).permit! %>">
+		<a href="<%= url_for params.merge(:folder_id => folder.id, :search => nil, :page => nil).permit! %>">
 		<div class="folder-image"><img src="<%= "/assets/ckeditor/filebrowser/images/folder-1.svg" %>" title="<%= folder.name %>"/></div>
 		<div class="img-data">
 			<div class="img-name"><%= folder.name %></div>
