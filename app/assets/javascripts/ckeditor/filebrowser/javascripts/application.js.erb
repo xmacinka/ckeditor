@@ -21,22 +21,36 @@ $(document).ready(function(){
       $(this).removeClass('hover');
     })
     .on('click', selector, function(e){
-	  var url = $(this).parents('div.gal-item').data('url');
-      
+      var item = this.closest('div.gal-item');
+      var url = item && item.dataset.url;
+
       if($.QueryString["CKEditor"]){
-	      CKEDITOR.tools.callFunction(CKEditorFuncNum, url);
-	      window.close();
+        CKEDITOR.tools.callFunction(CKEditorFuncNum, url);
+        window.close();
       }else if($.QueryString["Input"] || $.QueryString["InputId"])
       {
-        if($.QueryString["Input"])
-      	  parent.$('input[name='+$.QueryString["Input"]+']').val(url).trigger('change');
-        if($.QueryString["InputId"])
-          parent.$('input[id='+$.QueryString["InputId"]+']').val(url).trigger('change');
+        var pdoc = parent.document;
+        var setAndFire = function(el, val) {
+          if (!el) return;
+          el.value = val;
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        };
 
-    		if($.QueryString["InputForId"]){
-    			parent.$('input[name='+$.QueryString["InputForId"]+']').val($(this).parents('div.gal-item').data('id')).trigger('change');
-    		}
-      	parent.$('.image-browser-dialog').dialog('close');
+        if($.QueryString["Input"])
+          setAndFire(pdoc.querySelector('input[name='+$.QueryString["Input"]+']'), url);
+        if($.QueryString["InputId"])
+          setAndFire(pdoc.getElementById($.QueryString["InputId"]), url);
+        if($.QueryString["InputForId"])
+          setAndFire(pdoc.querySelector('input[name='+$.QueryString["InputForId"]+']'), item ? item.dataset.id : '');
+
+        // Close parent browser: BS5 modal #theme-image-browser-modal or legacy jQuery UI .image-browser-dialog
+        var bsModalEl = pdoc.getElementById('theme-image-browser-modal');
+        if (bsModalEl && parent.bootstrap) {
+          var inst = parent.bootstrap.Modal.getInstance(bsModalEl);
+          if (inst) inst.hide();
+        } else if (parent.$) {
+          parent.$('.image-browser-dialog').dialog('close');
+        }
       }
     });
 
