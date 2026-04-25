@@ -1,7 +1,7 @@
 require 'orm_adapter'
 require 'pathname'
-require 'will_paginate'
-require 'will_paginate/array'
+require 'pagy'
+require 'pagy/toolbox/helpers/support/series'
 
 module Ckeditor
   autoload :Utils, 'ckeditor/utils'

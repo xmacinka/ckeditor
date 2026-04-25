@@ -43,7 +43,7 @@ class Ckeditor::AttachmentFilesController < Ckeditor::ApplicationController
 
     @folders = @folders.order('name ASC')
 
-    @files = @files.order('id DESC').paginate(:page => params[:page], :per_page => 71) #71 # 98 # 80
+    @pagy_files, @files = pagy(:offset, @files.order('id DESC'), page: params[:page], limit: 71) #71 # 98 # 80
 
     respond_to do |format|
       format.html { render :layout => true }

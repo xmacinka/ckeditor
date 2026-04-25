@@ -1,6 +1,8 @@
 class Ckeditor::ApplicationController < ApplicationController
   layout 'ckeditor/application'
 
+  include Pagy::Method
+
   before_action :find_asset, :only => [:destroy, :update]
   before_action :ckeditor_authorize!
   before_action :authorize_resource
